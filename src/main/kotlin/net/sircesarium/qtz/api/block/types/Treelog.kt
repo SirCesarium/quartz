@@ -1,0 +1,23 @@
+package net.sircesarium.qtz.api.block.types
+
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.block.RotatedPillarBlock
+import net.minecraft.world.level.block.state.BlockBehaviour
+import net.sircesarium.qtz.api.block.BlockProvider
+import net.sircesarium.qtz.api.block.BlockRegistry
+
+fun BlockRegistry.treelog(
+    name: String? = null,
+    withItem: Boolean = true,
+    burnable: Boolean = true,
+    configure: BlockBehaviour.Properties.() -> Unit = {},
+    itemConfigure: Item.Properties.() -> Unit = {},
+) = BlockProvider(
+    registry = this, name,
+    factory = ::RotatedPillarBlock,
+    configure = {
+        if (burnable) ignitedByLava()
+        configure()
+    },
+    withItem, itemConfigure
+)
