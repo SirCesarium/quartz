@@ -29,7 +29,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          PRERELEASE=""
+          if [[ "${{ github.ref_name }}" =~ -(alpha|beta|rc) ]]; then
+            PRERELEASE="--prerelease"
+          fi
           gh release create "${{ github.ref_name }}" \
             --draft \
+            $PRERELEASE \
             --generate-notes \
             build/libs/*.jar
