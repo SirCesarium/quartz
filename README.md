@@ -22,6 +22,9 @@ class MyItems(blocks: MyBlocks) : ItemRegistry("my_mod") {
     }
 
     val myEpicItem by item { }
+
+    // Tools: sword, pickaxe, axe, shovel, hoe
+    val myEpicSword by sword(Tiers.IRON) { }
 }
 ```
 
