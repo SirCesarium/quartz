@@ -5,21 +5,18 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
 import net.sircesarium.qtz.api.block.BlockRegistry
+import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.block(
     name: String? = null,
     withItem: Boolean = true,
     datagen: Boolean = true,
+    shape: BlockShape = BlockShape.CubeAll,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
-    registry = this,
-    name,
-    factory = ::Block,
-    configure,
-    withItem,
-    itemConfigure,
-    datagen
+    registry = this, name, factory = ::Block, configure,
+    withItem, itemConfigure, datagen, shape
 )
 
 fun <T : Block> BlockRegistry.block(
@@ -30,11 +27,6 @@ fun <T : Block> BlockRegistry.block(
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
-    registry = this,
-    name,
-    factory,
-    configure,
-    withItem,
-    itemConfigure,
-    datagen
+    registry = this, name, factory, configure,
+    withItem, itemConfigure, datagen
 )

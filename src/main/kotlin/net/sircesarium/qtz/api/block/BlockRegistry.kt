@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.registries.DeferredBlock
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
+import net.sircesarium.qtz.api.datagen.BlockShape
 import net.sircesarium.qtz.api.datagen.DatagenRegistry
 import net.sircesarium.qtz.api.util.toSnakeCase
 import kotlin.reflect.KProperty
@@ -37,6 +38,7 @@ class BlockProvider<T : Block>(
     private val withItem: Boolean = true,
     private val itemConfigure: Item.Properties.() -> Unit = {},
     private val datagen: Boolean = true,
+    private val shape: BlockShape = BlockShape.CubeAll,
 ) {
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): BlockWithItem<T> {
         val id = name ?: prop.name.toSnakeCase()
@@ -47,7 +49,7 @@ class BlockProvider<T : Block>(
             registry.blockItems.registerSimpleBlockItem(block, Item.Properties().apply(itemConfigure))
         } else null
         if (datagen) {
-            DatagenRegistry.blockModels.add(registry.modId to id)
+            DatagenRegistry.blockModels.add(Triple(registry.modId, id, shape))
         }
         return BlockWithItem(block, item)
     }

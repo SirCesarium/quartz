@@ -6,10 +6,12 @@ import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
 import net.sircesarium.qtz.api.block.BlockRegistry
+import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.treelog(
     name: String? = null,
     withItem: Boolean = true,
+    datagen: Boolean = true,
     burnable: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
@@ -21,5 +23,5 @@ fun BlockRegistry.treelog(
         if (burnable) ignitedByLava()
         configure()
     },
-    withItem, itemConfigure
+    withItem, itemConfigure, datagen, BlockShape.CubeColumn()
 )

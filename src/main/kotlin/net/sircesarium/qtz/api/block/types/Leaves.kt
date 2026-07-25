@@ -6,10 +6,12 @@ import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
 import net.sircesarium.qtz.api.block.BlockRegistry
+import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.leaves(
     name: String? = null,
     withItem: Boolean = true,
+    datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
@@ -22,5 +24,5 @@ fun BlockRegistry.leaves(
         sound(SoundType.GRASS)
         configure()
     },
-    withItem, itemConfigure
+    withItem, itemConfigure, datagen, BlockShape.CubeAll
 )
