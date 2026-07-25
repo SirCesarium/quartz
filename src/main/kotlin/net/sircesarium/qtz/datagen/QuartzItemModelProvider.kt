@@ -11,10 +11,10 @@ class QuartzItemModelProvider(output: PackOutput, modid: String, efh: ExistingFi
 
     override fun registerModels() {
         for ((modId, itemName) in DatagenRegistry.itemModels) {
-            if (modId == this.modid) basicItem(ResourceLocation.fromNamespaceAndPath(modId, itemName))
+            basicItem(ResourceLocation.fromNamespaceAndPath(modId, itemName))
         }
         for ((modId, itemName) in DatagenRegistry.handheldModels) {
-            if (modId == this.modid) handheldItem(ResourceLocation.fromNamespaceAndPath(modId, itemName))
+            handheldItem(ResourceLocation.fromNamespaceAndPath(modId, itemName))
         }
     }
 }
