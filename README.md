@@ -17,7 +17,7 @@ class MyBlocks : BlockRegistry("my_mod") {
 
 class MyItems(blocks: MyBlocks) : ItemRegistry("my_mod") {
     // Create your custom block item for `noItemBlock`
-    val stoneItem = blockItem(blocks.noItemBlock) {
+    val stoneItem by blockItem(blocks.noItemBlock) {
         stacksTo(1)
     }
 
