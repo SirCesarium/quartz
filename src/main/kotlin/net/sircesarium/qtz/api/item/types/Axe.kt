@@ -8,8 +8,8 @@ import net.sircesarium.qtz.api.item.ItemRegistry
 import net.sircesarium.qtz.api.item.QtzItem
 
 fun ItemRegistry.axe(
-    name: String? = null,
     tier: Tier,
+    name: String? = null,
     attackDamage: Float = 6f,
     attackSpeed: Float = -3.2f,
     opts: QtzItem = QtzItem(),

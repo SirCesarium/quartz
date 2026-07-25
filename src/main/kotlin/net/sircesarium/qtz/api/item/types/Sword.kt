@@ -7,8 +7,8 @@ import net.sircesarium.qtz.api.item.ItemRegistry
 import net.sircesarium.qtz.api.item.QtzItem
 
 fun ItemRegistry.sword(
-    name: String? = null,
     tier: Tier,
+    name: String? = null,
     attackDamage: Int = 3,
     attackSpeed: Float = -2.4f,
     opts: QtzItem = QtzItem(),

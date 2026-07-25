@@ -8,8 +8,8 @@ import net.sircesarium.qtz.api.item.ItemRegistry
 import net.sircesarium.qtz.api.item.QtzItem
 
 fun ItemRegistry.pickaxe(
-    name: String? = null,
     tier: Tier,
+    name: String? = null,
     attackDamage: Float = 1f,
     attackSpeed: Float = -2.8f,
     opts: QtzItem = QtzItem(),
