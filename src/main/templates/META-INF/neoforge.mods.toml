@@ -8,7 +8,7 @@ version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
 description='''
-A Minecraft library
+Declarative Kotlin DSL for NeoForge modding
 '''
 
 [[dependencies.${mod_id}]]
