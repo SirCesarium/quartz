@@ -9,7 +9,7 @@ import net.sircesarium.qtz.api.block.BlockRegistry
 fun BlockRegistry.block(
     name: String? = null,
     withItem: Boolean = true,
-
+    datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
@@ -18,14 +18,15 @@ fun BlockRegistry.block(
     factory = ::Block,
     configure,
     withItem,
-    itemConfigure
+    itemConfigure,
+    datagen
 )
 
 fun <T : Block> BlockRegistry.block(
     factory: (BlockBehaviour.Properties) -> T,
     name: String? = null,
     withItem: Boolean = true,
-
+    datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
@@ -34,5 +35,6 @@ fun <T : Block> BlockRegistry.block(
     factory,
     configure,
     withItem,
-    itemConfigure
+    itemConfigure,
+    datagen
 )
