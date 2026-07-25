@@ -8,7 +8,7 @@ import net.sircesarium.qtz.api.item.ItemRegistry
 fun ItemRegistry.sword(
     tier: Tier,
     name: String? = null,
-    attackDamage: Int = 3,
+    attackDamage: Float = 3f,
     attackSpeed: Float = -2.4f,
     configure: Item.Properties.() -> Unit = {},
 ) = toolProvider(
