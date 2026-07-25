@@ -45,6 +45,10 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
         }
+        data {
+            data()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').absolutePath, '--existing', file('src/main/resources/').absolutePath
+        }
     }
     mods {
         "${mod_id}" {
@@ -81,6 +85,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 }
 
 sourceSets.main.resources.srcDir generateModMetadata
+sourceSets.main.resources.srcDir "src/generated/resources"
 neoForge.ideSyncTask generateModMetadata
 
 publishing {

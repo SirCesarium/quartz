@@ -10,10 +10,11 @@ fun ItemRegistry.sword(
     name: String? = null,
     attackDamage: Float = 3f,
     attackSpeed: Float = -2.4f,
+    datagen: Boolean = true,
     configure: Item.Properties.() -> Unit = {},
 ) = toolProvider(
     name, tier,
     attributes = { SwordItem.createAttributes(it, attackDamage, attackSpeed) },
     factory = { tier, props -> SwordItem(tier, props) },
-    configure
+    configure, datagen
 )

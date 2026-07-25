@@ -3,6 +3,7 @@ package net.sircesarium.qtz.api.item.types
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Tier
 import net.minecraft.world.item.component.ItemAttributeModifiers
+import net.sircesarium.qtz.api.datagen.DatagenRegistry
 import net.sircesarium.qtz.api.item.ItemProvider
 import net.sircesarium.qtz.api.item.ItemRegistry
 
@@ -12,8 +13,10 @@ internal fun <T : Item> ItemRegistry.toolProvider(
     attributes: (Tier) -> ItemAttributeModifiers,
     factory: (Tier, Item.Properties) -> T,
     configure: Item.Properties.() -> Unit,
+    datagen: Boolean = true,
 ) = ItemProvider(
     registry = this, name,
     factory = { props -> factory(tier, props.attributes(attributes(tier))) },
-    configure = { stacksTo(1); configure() }
+    configure = { stacksTo(1); configure() },
+    onRegister = if (datagen) { itemName -> DatagenRegistry.handheldModels.add(modId to itemName) } else null
 )

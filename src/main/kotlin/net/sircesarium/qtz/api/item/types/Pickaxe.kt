@@ -11,10 +11,11 @@ fun ItemRegistry.pickaxe(
     name: String? = null,
     attackDamage: Float = 1f,
     attackSpeed: Float = -2.8f,
+    datagen: Boolean = true,
     configure: Item.Properties.() -> Unit = {},
 ) = toolProvider(
     name, tier,
     attributes = { DiggerItem.createAttributes(it, attackDamage, attackSpeed) },
     factory = { tier, props -> PickaxeItem(tier, props) },
-    configure
+    configure, datagen
 )

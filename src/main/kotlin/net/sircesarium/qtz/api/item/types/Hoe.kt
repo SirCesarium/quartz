@@ -11,10 +11,11 @@ fun ItemRegistry.hoe(
     name: String? = null,
     attackDamage: Float = -1f,
     attackSpeed: Float = -3f,
+    datagen: Boolean = true,
     configure: Item.Properties.() -> Unit = {},
 ) = toolProvider(
     name, tier,
     attributes = { DiggerItem.createAttributes(it, attackDamage, attackSpeed) },
     factory = { tier, props -> HoeItem(tier, props) },
-    configure
+    configure, datagen
 )

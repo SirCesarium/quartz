@@ -11,10 +11,11 @@ fun ItemRegistry.axe(
     name: String? = null,
     attackDamage: Float = 6f,
     attackSpeed: Float = -3.2f,
+    datagen: Boolean = true,
     configure: Item.Properties.() -> Unit = {},
 ) = toolProvider(
     name, tier,
     attributes = { DiggerItem.createAttributes(it, attackDamage, attackSpeed) },
     factory = { tier, props -> AxeItem(tier, props) },
-    configure
+    configure, datagen
 )
