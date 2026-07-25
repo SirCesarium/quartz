@@ -22,6 +22,7 @@ fun <T : Block> BlockRegistry.block(
     factory: (BlockBehaviour.Properties) -> T,
     name: String? = null,
     withItem: Boolean = true,
+
     configure: BlockBehaviour.Properties.() -> Unit = {},
 ) = BlockProvider(
     registry = this,
