@@ -34,6 +34,7 @@ class BlockProvider<T : Block>(
     private val factory: (BlockBehaviour.Properties) -> T,
     private val configure: BlockBehaviour.Properties.() -> Unit,
     private val withItem: Boolean = true,
+    private val itemConfigure: Item.Properties.() -> Unit = {},
 ) {
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): BlockWithItem<T> {
         val id = name ?: prop.name.toSnakeCase()
@@ -41,7 +42,7 @@ class BlockProvider<T : Block>(
         configure(props)
         val block = registry.blocks.registerBlock(id, factory, props)
         val item = if (withItem) {
-            registry.blockItems.registerSimpleBlockItem(block, Item.Properties())
+            registry.blockItems.registerSimpleBlockItem(block, Item.Properties().apply(itemConfigure))
         } else null
         return BlockWithItem(block, item)
     }

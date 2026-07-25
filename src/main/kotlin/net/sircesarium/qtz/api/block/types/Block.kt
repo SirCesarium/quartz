@@ -1,5 +1,6 @@
 package net.sircesarium.qtz.api.block.types
 
+import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
@@ -10,12 +11,14 @@ fun BlockRegistry.block(
     withItem: Boolean = true,
 
     configure: BlockBehaviour.Properties.() -> Unit = {},
+    itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
     registry = this,
     name,
     factory = ::Block,
     configure,
-    withItem
+    withItem,
+    itemConfigure
 )
 
 fun <T : Block> BlockRegistry.block(
@@ -24,10 +27,12 @@ fun <T : Block> BlockRegistry.block(
     withItem: Boolean = true,
 
     configure: BlockBehaviour.Properties.() -> Unit = {},
+    itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
     registry = this,
     name,
     factory,
     configure,
-    withItem
+    withItem,
+    itemConfigure
 )

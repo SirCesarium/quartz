@@ -1,5 +1,6 @@
 package net.sircesarium.qtz.api.block.types
 
+import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.RotatedPillarBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
@@ -9,8 +10,9 @@ fun BlockRegistry.pillar(
     name: String? = null,
     withItem: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
+    itemConfigure: Item.Properties.() -> Unit = {},
 ) = BlockProvider(
     registry = this, name,
     factory = ::RotatedPillarBlock,
-    configure, withItem
+    configure, withItem, itemConfigure
 )
