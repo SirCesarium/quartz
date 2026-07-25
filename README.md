@@ -11,8 +11,8 @@ class MyBlocks : BlockRegistry("my_mod") {
     val customClassBlock by block(::CustomClassBlock) { strength(50f) }
 
     // Quartz generates block items by default
-    // You can disable it by passing QtzBlock(withItem = false)
-    val noItemBlock by block(opts = QtzBlock(withItem = false)) { }
+    // You can disable it by passing withItem = false
+    val noItemBlock by block(withItem = false) { }
 }
 
 class MyItems(blocks: MyBlocks) : ItemRegistry("my_mod") {

@@ -5,7 +5,6 @@ import net.minecraft.world.item.Tier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.sircesarium.qtz.api.item.ItemProvider
 import net.sircesarium.qtz.api.item.ItemRegistry
-import net.sircesarium.qtz.api.item.QtzItem
 
 internal fun <T : Item> ItemRegistry.toolProvider(
     name: String?,
@@ -13,10 +12,8 @@ internal fun <T : Item> ItemRegistry.toolProvider(
     attributes: (Tier) -> ItemAttributeModifiers,
     factory: (Tier, Item.Properties) -> T,
     configure: Item.Properties.() -> Unit,
-    opts: QtzItem,
 ) = ItemProvider(
     registry = this, name,
     factory = { props -> factory(tier, props.attributes(attributes(tier))) },
-    configure = { stacksTo(1); configure() },
-    opts
+    configure = { stacksTo(1); configure() }
 )

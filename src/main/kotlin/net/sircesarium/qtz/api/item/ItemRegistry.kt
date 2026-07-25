@@ -25,12 +25,10 @@ class ItemProvider<T : Item>(
     private val name: String?,
     private val factory: (Item.Properties) -> T,
     private val configure: Item.Properties.() -> Unit,
-    private val opts: QtzItem = QtzItem(),
 ) {
     operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): ItemDelegate<T> {
         val id = name ?: prop.name.toSnakeCase()
         val props = Item.Properties()
-        opts.itemOps?.invoke(props)
         configure(props)
         return ItemDelegate(registry.items.registerItem(id, factory, props))
     }

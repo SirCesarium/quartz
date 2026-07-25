@@ -4,11 +4,10 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockProvider
 import net.sircesarium.qtz.api.block.BlockRegistry
-import net.sircesarium.qtz.api.block.QtzBlock
 
 fun BlockRegistry.block(
     name: String? = null,
-    opts: QtzBlock = QtzBlock(),
+    withItem: Boolean = true,
 
     configure: BlockBehaviour.Properties.() -> Unit = {},
 ) = BlockProvider(
@@ -16,18 +15,18 @@ fun BlockRegistry.block(
     name,
     factory = ::Block,
     configure,
-    opts
+    withItem
 )
 
 fun <T : Block> BlockRegistry.block(
     factory: (BlockBehaviour.Properties) -> T,
     name: String? = null,
-    opts: QtzBlock = QtzBlock(),
+    withItem: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
 ) = BlockProvider(
     registry = this,
     name,
     factory,
     configure,
-    opts
+    withItem
 )
