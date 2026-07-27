@@ -7,16 +7,20 @@ import net.minecraft.world.level.block.RotatedPillarBlock
 import net.minecraft.world.level.block.SlabBlock
 import net.minecraft.world.level.block.SnowLayerBlock
 import net.minecraft.world.level.block.StairBlock
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel
-import net.neoforged.neoforge.client.model.generators.ModelFile
 import net.neoforged.neoforge.common.data.ExistingFileHelper
 import net.sircesarium.qtz.api.datagen.BlockShape
-import net.sircesarium.qtz.api.datagen.DatagenRegistry
 
-class QuartzBlockStateProvider(output: PackOutput, private val modid: String, efh: ExistingFileHelper) :
-    BlockStateProvider(output, modid, efh) {
+class QuartzBlockStateProvider(
+    output: PackOutput,
+    private val modid: String,
+    efh: ExistingFileHelper,
+    private val blockModels: List<Triple<String, String, BlockShape>>,
+    private val slabBlocks: List<Triple<String, String, String>>,
+    private val stairBlocks: List<Triple<String, String, String>>,
+    private val snowLayerBlocks: List<Triple<String, String, String>>,
+) : BlockStateProvider(output, modid, efh) {
 
     override fun registerStatesAndModels() {
         registerSimpleModels()
@@ -26,10 +30,8 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
     }
 
     private fun registerSimpleModels() {
-        for ((entryModId, blockName, shape) in DatagenRegistry.blockModels) {
-            if (entryModId != modid) continue
-
-            val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName))
+        for ((_, blockName, shape) in blockModels) {
+            val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(modid, blockName))
 
             when (shape) {
                 is BlockShape.CubeAll -> {
@@ -51,12 +53,11 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
     }
 
     private fun registerSlabModels() {
-        for ((entryModId, blockName, baseTexture) in DatagenRegistry.slabBlocks) {
-            if (entryModId != modid) continue
-
-            val slab = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName)) as SlabBlock
+        for ((_, blockName, baseTexture) in slabBlocks) {
+            val slab = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(modid, blockName)) as SlabBlock
             val name = BuiltInRegistries.BLOCK.getKey(slab).path
-            val texture = ResourceLocation.fromNamespaceAndPath(modid, "block/$baseTexture")
+            val baseId = ResourceLocation.parse(baseTexture)
+            val texture = ResourceLocation.fromNamespaceAndPath(baseId.namespace, "block/${baseId.path}")
             val bottomModel = models().slab(name, texture, texture, texture)
             val topModel = models().slabTop("${name}_top", texture, texture, texture)
             val doubleModel = models().cubeAll("${name}_double", texture)
@@ -67,12 +68,11 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
     }
 
     private fun registerStairModels() {
-        for ((entryModId, blockName, baseTexture) in DatagenRegistry.stairBlocks) {
-            if (entryModId != modid) continue
-
-            val stair = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName)) as StairBlock
+        for ((_, blockName, baseTexture) in stairBlocks) {
+            val stair = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(modid, blockName)) as StairBlock
             val name = BuiltInRegistries.BLOCK.getKey(stair).path
-            val texture = ResourceLocation.fromNamespaceAndPath(modid, "block/$baseTexture")
+            val baseId = ResourceLocation.parse(baseTexture)
+            val texture = ResourceLocation.fromNamespaceAndPath(baseId.namespace, "block/${baseId.path}")
             val straightModel = models().stairs(name, texture, texture, texture)
             val innerModel = models().stairsInner("${name}_inner", texture, texture, texture)
             val outerModel = models().stairsOuter("${name}_outer", texture, texture, texture)
@@ -83,12 +83,11 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
     }
 
     private fun registerSnowLayerModels() {
-        for ((entryModId, blockName, baseTexture) in DatagenRegistry.snowLayerBlocks) {
-            if (entryModId != modid) continue
-
-            val layer = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName)) as SnowLayerBlock
+        for ((_, blockName, baseTexture) in snowLayerBlocks) {
+            val layer = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(modid, blockName)) as SnowLayerBlock
             val name = BuiltInRegistries.BLOCK.getKey(layer).path
-            val texture = ResourceLocation.fromNamespaceAndPath(modid, "block/$baseTexture")
+            val baseId = ResourceLocation.parse(baseTexture)
+            val texture = ResourceLocation.fromNamespaceAndPath(baseId.namespace, "block/${baseId.path}")
 
             val singleModel = models().withExistingParent("${name}_single", "block/thin_block")
                 .texture("particle", texture)
