@@ -10,11 +10,10 @@ import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.leaves(
     name: String? = null,
-    withItem: Boolean = true,
     datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
-) = BlockProvider(
+): BlockProvider<LeavesBlock> = BlockProvider(
     registry = this, name,
     factory = ::LeavesBlock,
     configure = {
@@ -24,5 +23,5 @@ fun BlockRegistry.leaves(
         sound(SoundType.GRASS)
         configure()
     },
-    withItem, itemConfigure, datagen, BlockShape.CubeAll
+    itemConfigure, datagen, BlockShape.CubeAll
 )

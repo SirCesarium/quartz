@@ -9,12 +9,11 @@ import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.pillar(
     name: String? = null,
-    withItem: Boolean = true,
     datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
-) = BlockProvider(
+): BlockProvider<RotatedPillarBlock> = BlockProvider(
     registry = this, name,
     factory = ::RotatedPillarBlock,
-    configure, withItem, itemConfigure, datagen, BlockShape.CubeColumn()
+    configure, itemConfigure, datagen, BlockShape.CubeColumn()
 )

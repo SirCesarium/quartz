@@ -10,12 +10,11 @@ import net.sircesarium.qtz.api.datagen.BlockShape
 
 fun BlockRegistry.treelog(
     name: String? = null,
-    withItem: Boolean = true,
     datagen: Boolean = true,
     burnable: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
-) = BlockProvider(
+): BlockProvider<RotatedPillarBlock> = BlockProvider(
     registry = this, name,
     factory = ::RotatedPillarBlock,
     configure = {
@@ -23,5 +22,5 @@ fun BlockRegistry.treelog(
         if (burnable) ignitedByLava()
         configure()
     },
-    withItem, itemConfigure, datagen, BlockShape.CubeColumn()
+    itemConfigure, datagen, BlockShape.CubeColumn()
 )
