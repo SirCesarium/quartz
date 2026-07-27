@@ -16,8 +16,18 @@ class QuartzBlockLootProvider(
     override fun generate() {
         for ((entryModId, blockName, _) in DatagenRegistry.blockModels) {
             if (entryModId != modid) continue
+
             val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName))
+
             dropSelf(block)
+        }
+
+        for ((entryModId, blockName, _) in DatagenRegistry.slabBlocks) {
+            if (entryModId != modid) continue
+
+            val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName))
+
+            add(block, createSlabItemTable(block))
         }
     }
 }

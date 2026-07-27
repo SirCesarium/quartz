@@ -4,4 +4,6 @@ object DatagenRegistry {
     val itemModels = mutableListOf<Pair<String, String>>()
     val handheldModels = mutableListOf<Pair<String, String>>()
     val blockModels = mutableListOf<Triple<String, String, BlockShape>>()
+    val slabBlocks = mutableListOf<Triple<String, String, String>>()
+    val stairBlocks = mutableListOf<Triple<String, String, String>>()
 }

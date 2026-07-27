@@ -10,25 +10,37 @@ object DataGatherers {
     fun gatherData(event: GatherDataEvent) {
         val unscopedOutput = PackOutput(event.generator.packOutput.outputFolder.parent)
         val lookupProvider = event.lookupProvider
+
         val modIds = DatagenRegistry.itemModels.map { it.first }.toSet() +
                 DatagenRegistry.handheldModels.map { it.first }.toSet() +
                 DatagenRegistry.blockModels.map { it.first }.toSet()
+
         for (modId in modIds) {
-            event.generator.addProvider(true,
-                QuartzItemModelProvider(unscopedOutput, modId, event.existingFileHelper))
-            event.generator.addProvider(true,
-                QuartzBlockStateProvider(unscopedOutput, modId, event.existingFileHelper))
+            event.generator.addProvider(
+                true,
+                QuartzItemModelProvider(unscopedOutput, modId, event.existingFileHelper)
+            )
+            event.generator.addProvider(
+                true,
+                QuartzBlockStateProvider(unscopedOutput, modId, event.existingFileHelper)
+            )
         }
+
         val blockModIds = DatagenRegistry.blockModels.map { it.first }.toSet()
+
         for (modId in blockModIds) {
-            event.generator.addProvider(true, LootTableProvider(
-                unscopedOutput, setOf(),
-                listOf(LootTableProvider.SubProviderEntry(
-                    { QuartzBlockLootProvider(event.lookupProvider.join(), modId) },
-                    LootContextParamSets.BLOCK
-                )),
-                event.lookupProvider
-            ))
+            event.generator.addProvider(
+                true, LootTableProvider(
+                    unscopedOutput, setOf(),
+                    listOf(
+                        LootTableProvider.SubProviderEntry(
+                            { QuartzBlockLootProvider(event.lookupProvider.join(), modId) },
+                            LootContextParamSets.BLOCK
+                        )
+                    ),
+                    event.lookupProvider
+                )
+            )
         }
     }
 }
