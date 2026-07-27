@@ -14,5 +14,6 @@ fun ItemRegistry.blockItem(
         val props = Item.Properties().apply(configure)
         items.registerSimpleBlockItem(block.block, props)
     }
+
     return ItemDelegate(holder)
 }

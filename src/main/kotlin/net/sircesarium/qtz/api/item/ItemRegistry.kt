@@ -2,10 +2,8 @@ package net.sircesarium.qtz.api.item
 
 import net.minecraft.world.item.Item
 import net.neoforged.bus.api.IEventBus
-
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
-import net.sircesarium.qtz.api.util.toSnakeCase
 import kotlin.reflect.KProperty
 
 abstract class ItemRegistry(val modId: String) {
@@ -18,20 +16,4 @@ abstract class ItemRegistry(val modId: String) {
 
 class ItemDelegate<T : Item>(val holder: DeferredItem<T>) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): DeferredItem<T> = holder
-}
-
-class ItemProvider<T : Item>(
-    private val registry: ItemRegistry,
-    private val name: String?,
-    private val factory: (Item.Properties) -> T,
-    private val configure: Item.Properties.() -> Unit,
-    private val onRegister: ((String) -> Unit)? = null,
-) {
-    operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): ItemDelegate<T> {
-        val id = name ?: prop.name.toSnakeCase()
-        val props = Item.Properties()
-        configure(props)
-        onRegister?.invoke(id)
-        return ItemDelegate(registry.items.registerItem(id, factory, props))
-    }
 }

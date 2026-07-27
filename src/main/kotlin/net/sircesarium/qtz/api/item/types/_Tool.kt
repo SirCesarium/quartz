@@ -4,7 +4,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.Tier
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.sircesarium.qtz.api.datagen.DatagenRegistry
-import net.sircesarium.qtz.api.item.ItemProvider
+import net.sircesarium.qtz.api.item.provider.ItemProvider
 import net.sircesarium.qtz.api.item.ItemRegistry
 
 internal fun <T : Item> ItemRegistry.toolProvider(

@@ -2,7 +2,7 @@ package net.sircesarium.qtz.api.item.types
 
 import net.minecraft.world.item.Item
 import net.sircesarium.qtz.api.datagen.DatagenRegistry
-import net.sircesarium.qtz.api.item.ItemProvider
+import net.sircesarium.qtz.api.item.provider.ItemProvider
 import net.sircesarium.qtz.api.item.ItemRegistry
 
 fun ItemRegistry.item(
