@@ -1,46 +1,22 @@
 package net.sircesarium.qtz.api.block
 
-import net.minecraft.world.item.BlockItem
-import net.minecraft.world.level.block.Block
 import net.neoforged.bus.api.IEventBus
-import net.neoforged.neoforge.registries.DeferredBlock
-import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
-import net.sircesarium.qtz.api.datagen.BlockShape
-import kotlin.reflect.KProperty
+import net.sircesarium.qtz.api.IRegistry
+import kotlin.properties.PropertyDelegateProvider
+import kotlin.properties.ReadOnlyProperty
 
-abstract class BlockRegistry(val modId: String) {
-    val blocks: DeferredRegister.Blocks = DeferredRegister.createBlocks(modId)
-    @PublishedApi internal val blockItems: DeferredRegister.Items = DeferredRegister.createItems(modId)
+open class BlockRegistry(modId: String) : IRegistry {
+    internal val blocks = DeferredRegister.createBlocks(modId)
+    internal val items = DeferredRegister.createItems(modId)
 
-    internal val blockModels = mutableListOf<Triple<String, String, BlockShape>>()
-    internal val slabBlocks = mutableListOf<Triple<String, String, String>>()
-    internal val stairBlocks = mutableListOf<Triple<String, String, String>>()
-    internal val snowLayerBlocks = mutableListOf<Triple<String, String, String>>()
-
-    companion object {
-        internal val instances = mutableListOf<BlockRegistry>()
-    }
-
-    init {
-        instances.add(this)
-    }
-
-    fun register(bus: IEventBus) {
+    override fun register(bus: IEventBus) {
         blocks.register(bus)
-        blockItems.register(bus)
+        items.register(bus)
     }
-}
 
-class BlockWithItem<T : Block>(
-    val block: DeferredBlock<T>,
-    val item: DeferredItem<BlockItem>,
-) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): BlockWithItem<T> = this
-}
-
-class BlockOnly<T : Block>(
-    val block: DeferredBlock<T>,
-) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): BlockOnly<T> = this
+    fun <T> bindName(factory: (String) -> T) = PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, T>> { _, property ->
+        val instance = factory(property.name)
+        ReadOnlyProperty { _, _ -> instance }
+    }
 }
