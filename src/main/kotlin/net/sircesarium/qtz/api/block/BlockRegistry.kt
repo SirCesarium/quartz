@@ -1,16 +1,11 @@
 package net.sircesarium.qtz.api.block
 
 import net.minecraft.world.item.BlockItem
-import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockBehaviour
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.registries.DeferredBlock
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
-import net.sircesarium.qtz.api.datagen.BlockShape
-import net.sircesarium.qtz.api.datagen.DatagenRegistry
-import net.sircesarium.qtz.api.util.toSnakeCase
 import kotlin.reflect.KProperty
 
 abstract class BlockRegistry(val modId: String) {
@@ -28,29 +23,4 @@ class BlockWithItem<T : Block>(
     val item: DeferredItem<BlockItem>?,
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): BlockWithItem<T> = this
-}
-
-class BlockProvider<T : Block>(
-    private val registry: BlockRegistry,
-    private val name: String?,
-    private val factory: (BlockBehaviour.Properties) -> T,
-    private val configure: BlockBehaviour.Properties.() -> Unit,
-    private val withItem: Boolean = true,
-    private val itemConfigure: Item.Properties.() -> Unit = {},
-    private val datagen: Boolean = true,
-    private val shape: BlockShape = BlockShape.CubeAll,
-) {
-    operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): BlockWithItem<T> {
-        val id = name ?: prop.name.toSnakeCase()
-        val props = BlockBehaviour.Properties.of()
-        configure(props)
-        val block = registry.blocks.registerBlock(id, factory, props)
-        val item = if (withItem) {
-            registry.blockItems.registerSimpleBlockItem(block, Item.Properties().apply(itemConfigure))
-        } else null
-        if (datagen) {
-            DatagenRegistry.blockModels.add(Triple(registry.modId, id, shape))
-        }
-        return BlockWithItem(block, item)
-    }
 }

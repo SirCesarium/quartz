@@ -4,7 +4,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.RotatedPillarBlock
 import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockBehaviour
-import net.sircesarium.qtz.api.block.BlockProvider
+import net.sircesarium.qtz.api.block.provider.BlockProvider
 import net.sircesarium.qtz.api.block.BlockRegistry
 import net.sircesarium.qtz.api.datagen.BlockShape
 
