@@ -8,41 +8,27 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import net.sircesarium.qtz.api.block.BlockRegistry
 import net.sircesarium.qtz.api.block.BlockWithItem
 import net.sircesarium.qtz.api.block.provider.BlockProvider
-import net.sircesarium.qtz.api.datagen.DatagenRegistry
-import net.neoforged.neoforge.registries.DeferredBlock
 
 fun BlockRegistry.snowLayer(
     baseBlock: Block,
     name: String? = null,
-    withItem: Boolean = true,
     datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
 ): BlockProvider<SnowLayerBlock> {
-    val key = BuiltInRegistries.BLOCK.getResourceKey(baseBlock).orElseThrow()
-    return snowLayer(DeferredBlock.createBlock<Block>(key), name, withItem, datagen, configure, itemConfigure)
-}
-
-fun BlockRegistry.snowLayer(
-    baseBlock: DeferredBlock<*>,
-    name: String? = null,
-    withItem: Boolean = true,
-    datagen: Boolean = true,
-    configure: BlockBehaviour.Properties.() -> Unit = {},
-    itemConfigure: Item.Properties.() -> Unit = {},
-): BlockProvider<SnowLayerBlock> {
+    val baseName = BuiltInRegistries.BLOCK.getKey(baseBlock).toString()
     val userConfigure = configure
+    val reg = this
     return BlockProvider(
-        registry = this, name = name,
+        registry = reg, name = name,
         factory = { SnowLayerBlock(it) },
         configure = {
-            sound(BlockSound.get(baseBlock.get()))
+            sound(BlockSound.get(baseBlock))
             userConfigure()
         },
-        withItem = withItem,
         itemConfigure = itemConfigure, datagen = false,
         onRegister = if (datagen) {{ id, _ ->
-            DatagenRegistry.snowLayerBlocks.add(Triple(modId, id, baseBlock.id.path))
+            reg.snowLayerBlocks.add(Triple(reg.modId, id, baseName))
         }} else null
     )
 }
@@ -50,8 +36,23 @@ fun BlockRegistry.snowLayer(
 fun BlockRegistry.snowLayer(
     baseBlock: BlockWithItem<*>,
     name: String? = null,
-    withItem: Boolean = true,
     datagen: Boolean = true,
     configure: BlockBehaviour.Properties.() -> Unit = {},
     itemConfigure: Item.Properties.() -> Unit = {},
-): BlockProvider<SnowLayerBlock> = snowLayer(baseBlock.block, name, withItem, datagen, configure, itemConfigure)
+): BlockProvider<SnowLayerBlock> {
+    val baseName = baseBlock.block.id.toString()
+    val userConfigure = configure
+    val reg = this
+    return BlockProvider(
+        registry = reg, name = name,
+        factory = { SnowLayerBlock(it) },
+        configure = {
+            sound(BlockSound.get(baseBlock.block.get()))
+            userConfigure()
+        },
+        itemConfigure = itemConfigure, datagen = false,
+        onRegister = if (datagen) {{ id, _ ->
+            reg.snowLayerBlocks.add(Triple(reg.modId, id, baseName))
+        }} else null
+    )
+}

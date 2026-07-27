@@ -9,6 +9,17 @@ import kotlin.reflect.KProperty
 abstract class ItemRegistry(val modId: String) {
     val items: DeferredRegister.Items = DeferredRegister.createItems(modId)
 
+    internal val itemModels = mutableListOf<Pair<String, String>>()
+    internal val handheldModels = mutableListOf<Pair<String, String>>()
+
+    companion object {
+        internal val instances = mutableListOf<ItemRegistry>()
+    }
+
+    init {
+        instances.add(this)
+    }
+
     fun register(bus: IEventBus) {
         items.register(bus)
     }

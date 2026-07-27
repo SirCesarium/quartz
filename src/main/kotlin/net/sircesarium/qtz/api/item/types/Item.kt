@@ -1,7 +1,6 @@
 package net.sircesarium.qtz.api.item.types
 
 import net.minecraft.world.item.Item
-import net.sircesarium.qtz.api.datagen.DatagenRegistry
 import net.sircesarium.qtz.api.item.provider.ItemProvider
 import net.sircesarium.qtz.api.item.ItemRegistry
 
@@ -14,7 +13,7 @@ fun ItemRegistry.item(
     name,
     factory = ::Item,
     configure,
-    onRegister = if (datagen) { itemName -> DatagenRegistry.itemModels.add(modId to itemName) } else null,
+    onRegister = if (datagen) { itemName -> this.itemModels.add(modId to itemName) } else null,
 )
 
 fun <T : Item> ItemRegistry.item(
@@ -27,5 +26,5 @@ fun <T : Item> ItemRegistry.item(
     name,
     factory,
     configure,
-    onRegister = if (datagen) { itemName -> DatagenRegistry.itemModels.add(modId to itemName) } else null,
+    onRegister = if (datagen) { itemName -> this.itemModels.add(modId to itemName) } else null,
 )

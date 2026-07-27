@@ -4,22 +4,22 @@ import net.minecraft.data.PackOutput
 import net.minecraft.resources.ResourceLocation
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider
 import net.neoforged.neoforge.common.data.ExistingFileHelper
-import net.sircesarium.qtz.api.datagen.DatagenRegistry
 
-class QuartzItemModelProvider(output: PackOutput, modid: String, efh: ExistingFileHelper) :
-    ItemModelProvider(output, modid, efh) {
+class QuartzItemModelProvider(
+    output: PackOutput,
+    modid: String,
+    efh: ExistingFileHelper,
+    private val itemModels: List<Pair<String, String>>,
+    private val handheldModels: List<Pair<String, String>>,
+) : ItemModelProvider(output, modid, efh) {
 
     override fun registerModels() {
-        for ((entryModId, itemName) in DatagenRegistry.itemModels) {
-            if (entryModId != modid) continue
-
-            basicItem(ResourceLocation.fromNamespaceAndPath(entryModId, itemName))
+        for ((_, itemName) in itemModels) {
+            basicItem(ResourceLocation.fromNamespaceAndPath(modid, itemName))
         }
 
-        for ((entryModId, itemName) in DatagenRegistry.handheldModels) {
-            if (entryModId != modid) continue
-
-            handheldItem(ResourceLocation.fromNamespaceAndPath(entryModId, itemName))
+        for ((_, itemName) in handheldModels) {
+            handheldItem(ResourceLocation.fromNamespaceAndPath(modid, itemName))
         }
     }
 }
