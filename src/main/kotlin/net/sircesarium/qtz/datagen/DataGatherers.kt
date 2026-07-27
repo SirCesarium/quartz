@@ -13,7 +13,10 @@ object DataGatherers {
 
         val modIds = DatagenRegistry.itemModels.map { it.first }.toSet() +
                 DatagenRegistry.handheldModels.map { it.first }.toSet() +
-                DatagenRegistry.blockModels.map { it.first }.toSet()
+                DatagenRegistry.blockModels.map { it.first }.toSet() +
+                DatagenRegistry.slabBlocks.map { it.first }.toSet() +
+                DatagenRegistry.stairBlocks.map { it.first }.toSet() +
+                DatagenRegistry.snowLayerBlocks.map { it.first }.toSet()
 
         for (modId in modIds) {
             event.generator.addProvider(
@@ -26,7 +29,10 @@ object DataGatherers {
             )
         }
 
-        val blockModIds = DatagenRegistry.blockModels.map { it.first }.toSet()
+        val blockModIds = DatagenRegistry.blockModels.map { it.first }.toSet() +
+                DatagenRegistry.slabBlocks.map { it.first }.toSet() +
+                DatagenRegistry.stairBlocks.map { it.first }.toSet() +
+                DatagenRegistry.snowLayerBlocks.map { it.first }.toSet()
 
         for (modId in blockModIds) {
             event.generator.addProvider(

@@ -21,6 +21,7 @@ open class BlockProvider<T : Block>(
     protected val itemConfigure: Item.Properties.() -> Unit = {},
     protected val datagen: Boolean = true,
     protected val shape: BlockShape = BlockShape.CubeAll,
+    protected val onRegister: ((String, DeferredBlock<T>) -> Unit)? = null,
 ) {
     open operator fun provideDelegate(thisRef: Any?, prop: KProperty<*>): BlockWithItem<T> {
         val id = name ?: prop.name.toSnakeCase()
@@ -37,6 +38,8 @@ open class BlockProvider<T : Block>(
         if (datagen) {
             DatagenRegistry.blockModels.add(Triple(registry.modId, id, shape))
         }
+
+        onRegister?.invoke(id, block)
 
         return BlockWithItem(block, item)
     }

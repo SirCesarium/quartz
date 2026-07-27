@@ -5,8 +5,12 @@ import net.minecraft.data.PackOutput
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.RotatedPillarBlock
 import net.minecraft.world.level.block.SlabBlock
+import net.minecraft.world.level.block.SnowLayerBlock
 import net.minecraft.world.level.block.StairBlock
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel
+import net.neoforged.neoforge.client.model.generators.ModelFile
 import net.neoforged.neoforge.common.data.ExistingFileHelper
 import net.sircesarium.qtz.api.datagen.BlockShape
 import net.sircesarium.qtz.api.datagen.DatagenRegistry
@@ -18,6 +22,7 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
         registerSimpleModels()
         registerSlabModels()
         registerStairModels()
+        registerSnowLayerModels()
     }
 
     private fun registerSimpleModels() {
@@ -74,6 +79,47 @@ class QuartzBlockStateProvider(output: PackOutput, private val modid: String, ef
 
             stairsBlock(stair, straightModel, innerModel, outerModel)
             simpleBlockItem(stair, straightModel)
+        }
+    }
+
+    private fun registerSnowLayerModels() {
+        for ((entryModId, blockName, baseTexture) in DatagenRegistry.snowLayerBlocks) {
+            if (entryModId != modid) continue
+
+            val layer = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName)) as SnowLayerBlock
+            val name = BuiltInRegistries.BLOCK.getKey(layer).path
+            val texture = ResourceLocation.fromNamespaceAndPath(modid, "block/$baseTexture")
+
+            val singleModel = models().withExistingParent("${name}_single", "block/thin_block")
+                .texture("particle", texture)
+                .texture("texture", texture)
+                .element()
+                .from(0.0F, 0.0F, 0.0F)
+                .to(16.0F, 2.0F, 16.0F)
+                .allFaces { _, face -> face.texture("#texture") }
+                .end()
+
+            getVariantBuilder(layer).forAllStates { state ->
+                val layers = state.getValue(SnowLayerBlock.LAYERS)
+                val height = layers * 2.0F
+
+                val model = if (layers == 1) {
+                    singleModel
+                } else {
+                    models().withExistingParent("${name}_layer${layers}", "block/thin_block")
+                        .texture("particle", texture)
+                        .texture("texture", texture)
+                        .element()
+                        .from(0.0F, 0.0F, 0.0F)
+                        .to(16.0F, height, 16.0F)
+                        .allFaces { _, face -> face.texture("#texture") }
+                        .end()
+                }
+
+                ConfiguredModel.builder().modelFile(model).build()
+            }
+
+            simpleBlockItem(layer, singleModel)
         }
     }
 }

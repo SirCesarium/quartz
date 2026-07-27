@@ -29,5 +29,21 @@ class QuartzBlockLootProvider(
 
             add(block, createSlabItemTable(block))
         }
+
+        for ((entryModId, blockName, _) in DatagenRegistry.stairBlocks) {
+            if (entryModId != modid) continue
+
+            val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName))
+
+            dropSelf(block)
+        }
+
+        for ((entryModId, blockName, _) in DatagenRegistry.snowLayerBlocks) {
+            if (entryModId != modid) continue
+
+            val block = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath(entryModId, blockName))
+
+            dropSelf(block)
+        }
     }
 }

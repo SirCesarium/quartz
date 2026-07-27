@@ -6,4 +6,5 @@ object DatagenRegistry {
     val blockModels = mutableListOf<Triple<String, String, BlockShape>>()
     val slabBlocks = mutableListOf<Triple<String, String, String>>()
     val stairBlocks = mutableListOf<Triple<String, String, String>>()
+    val snowLayerBlocks = mutableListOf<Triple<String, String, String>>()
 }
