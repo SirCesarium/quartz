@@ -37,5 +37,6 @@ bin/
 run/
 !**/src/**/run/
 **/src/generated/
+**/src/main/resources/assets/
 repo/
 !**/src/**/repo/

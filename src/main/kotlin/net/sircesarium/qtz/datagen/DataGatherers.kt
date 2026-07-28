@@ -4,6 +4,7 @@ import net.minecraft.data.loot.LootTableProvider
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.neoforged.neoforge.data.event.GatherDataEvent
 import net.sircesarium.qtz.api.block.BlockRegistry
+import net.sircesarium.qtz.api.item.ItemRegistry
 
 object DataGatherers {
     fun gatherData(event: GatherDataEvent) {
@@ -39,6 +40,13 @@ object DataGatherers {
             event.generator.addProvider(
                 true,
                 QuartzItemTagProvider(output, lookup, blockTags.contentsGetter(), reg.modId, helper, plans)
+            )
+        }
+
+        for (reg in ItemRegistry.instances) {
+            event.generator.addProvider(
+                true,
+                QuartzItemModelProvider(output, reg.modId, helper, reg.plans)
             )
         }
     }
