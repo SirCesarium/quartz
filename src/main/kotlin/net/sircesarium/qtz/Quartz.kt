@@ -2,16 +2,12 @@ package net.sircesarium.qtz
 
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
-import net.neoforged.fml.loading.FMLLoader
-import net.sircesarium.qtz.dev.ModDevBlocks
-
+import net.sircesarium.qtz.datagen.DataGatherers
 
 @Mod(Quartz.MODID)
 class Quartz(modEventBus: IEventBus) {
     init {
-        if (!FMLLoader.isProduction()) {
-            ModDevBlocks().register(modEventBus)
-        }
+        modEventBus.addListener(DataGatherers::gatherData)
     }
 
     companion object {
