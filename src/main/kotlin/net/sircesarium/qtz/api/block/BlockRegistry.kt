@@ -7,8 +7,8 @@ import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 
 open class BlockRegistry(modId: String) : IRegistry {
-    internal val blocks = DeferredRegister.createBlocks(modId)
-    internal val items = DeferredRegister.createItems(modId)
+    @PublishedApi internal val blocks = DeferredRegister.createBlocks(modId)
+    @PublishedApi internal val items = DeferredRegister.createItems(modId)
 
     override fun register(bus: IEventBus) {
         blocks.register(bus)
