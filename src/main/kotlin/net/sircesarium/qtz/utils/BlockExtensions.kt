@@ -6,5 +6,5 @@ import net.minecraft.world.level.block.SoundType
 val Block.soundType: SoundType
     get() {
         @Suppress("DEPRECATION")
-        return defaultBlockState().getSoundType()
+        return defaultBlockState().soundType
     }
