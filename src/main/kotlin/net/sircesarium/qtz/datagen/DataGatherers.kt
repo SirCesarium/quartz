@@ -48,6 +48,11 @@ object DataGatherers {
                 true,
                 QuartzItemModelProvider(output, reg.modId, helper, reg.plans)
             )
+
+            event.generator.addProvider(
+                true,
+                QuartzItemPlanTagProvider(output, lookup, reg.modId, helper, reg.plans)
+            )
         }
     }
 }
