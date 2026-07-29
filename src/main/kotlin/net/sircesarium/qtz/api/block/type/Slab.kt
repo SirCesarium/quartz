@@ -28,7 +28,7 @@ class SlabPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<SlabBlock>,
     val item: DeferredItem<BlockItem>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -70,6 +70,10 @@ class SlabScope(private val plan: SlabPlan, private val builder: BlockBuilder<Sl
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -84,6 +88,7 @@ class SlabScope(private val plan: SlabPlan, private val builder: BlockBuilder<Sl
  * | Block class | auto-set to `SlabBlock` |
  * | Block properties | `configureBlock { }` | `strength(2.0f)`, `noCollision()` |
  * | Item properties | `configureItem { }` | `stacksTo(16)` |
+ * | Texture override | `texture("path")` | `texture("minecraft:block/stone")` |
  * | Block state + model | `blockState = true/false` | disable to provide custom |
  * | Loot table | `lootTable = true/false` | disable to provide custom |
  *
@@ -95,13 +100,38 @@ class SlabScope(private val plan: SlabPlan, private val builder: BlockBuilder<Sl
  *     val stoneSlab by slab(Blocks.STONE)
  *
  *     val customSlab by slab(Blocks.STONE) {
+ *         texture("minecraft:block/polished_andesite")
  *         configureBlock { noCollision(); lightLevel { 8 } }
- *         configureItem { stacksTo(4) }
- *         lootTable = false
  *     }
  * }
  * ```
  */
+fun BlockRegistry.slab(
+    config: SlabScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<SlabBlock>()
+    val textureName = name.removeSuffix("_slab")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+        builder.blockCustomizer?.invoke(p)
+        SlabBlock(p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = SlabPlan(name, blockHolder, itemHolder, texture)
+    SlabScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
 fun BlockRegistry.slab(
     baseBlock: Block,
     config: SlabScope.() -> Unit = {},
