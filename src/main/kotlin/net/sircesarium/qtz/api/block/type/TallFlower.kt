@@ -29,8 +29,8 @@ class TallFlowerPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<TallFlowerBlock>,
     val item: DeferredItem<Item>,
-    private val textureBottom: ResourceLocation,
-    private val textureTop: ResourceLocation,
+    var textureBottom: ResourceLocation,
+    var textureTop: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -77,6 +77,14 @@ class TallFlowerScope(private val plan: TallFlowerPlan, private val builder: Blo
 
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
+    }
+
+    fun textureBottom(path: String) {
+        plan.textureBottom = ResourceLocation.parse(path)
+    }
+
+    fun textureTop(path: String) {
+        plan.textureTop = ResourceLocation.parse(path)
     }
 }
 
