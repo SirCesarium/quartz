@@ -36,7 +36,7 @@ class MyMod(modEventBus: IEventBus) {
     init {
         ModBlocks.register(modEventBus)
         ModItems.register(modEventBus)
-        QuartzDataGatherers.register(modEventBus)
+        // Datagen is handled automatically by Quartz
     }
 }
 ```
@@ -81,9 +81,8 @@ Textures default to `modid:item/<snake_case_name>`. Override with `texture("modi
 
 ## Datagen
 
-Call `QuartzDataGatherers.register(modEventBus)` in your `@Mod` class. It
-automatically discovers all `BlockRegistry` and `ItemRegistry` instances and
-hooks up every provider.
+Datagen hooks up automatically — Quartz registers its `GatherDataEvent` listener
+in the built-in `@Mod` class. No setup needed.
 
 Each block type auto-generates:
 - Blockstate JSON
