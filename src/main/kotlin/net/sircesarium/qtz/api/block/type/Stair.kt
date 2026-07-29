@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.StairBlock
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider
@@ -28,7 +29,7 @@ class StairPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<StairBlock>,
     val item: DeferredItem<BlockItem>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -70,6 +71,10 @@ class StairScope(private val plan: StairPlan, private val builder: BlockBuilder<
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -86,6 +91,7 @@ class StairScope(private val plan: StairPlan, private val builder: BlockBuilder<
  * | Item properties | `configureItem { }` | `stacksTo(16)` |
  * | Block state + model | `blockState = true/false` | disable to provide custom |
  * | Loot table | `lootTable = true/false` | disable to provide custom |
+ * | Texture override | `texture("path")` | `texture("minecraft:block/stone")` |
  * | Render type | `renderType = "cutout"` | for transparent blocks (glass, ice) |
  *
  * Datagen is auto-generated — each stair owns its plan.
@@ -95,13 +101,39 @@ class StairScope(private val plan: StairPlan, private val builder: BlockBuilder<
  * class ModBlocks : BlockRegistry("modid") {
  *     val stoneStair by stair(Blocks.STONE)
  *
- *     val glassStair by stair(Blocks.GLASS) {
+ *     val customStair by stair(Blocks.STONE) {
+ *         texture("minecraft:block/polished_andesite")
  *         renderType = "cutout"
- *         configureBlock { noOcclusion() }
  *     }
  * }
  * ```
  */
+fun BlockRegistry.stair(
+    config: StairScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<StairBlock>()
+    val textureName = name.removeSuffix("_stairs").removeSuffix("_stair")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+        builder.blockCustomizer?.invoke(p)
+        StairBlock(Blocks.STONE.defaultBlockState(), p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = StairPlan(name, blockHolder, itemHolder, texture)
+    StairScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
 fun BlockRegistry.stair(
     baseBlock: Block,
     config: StairScope.() -> Unit = {},
