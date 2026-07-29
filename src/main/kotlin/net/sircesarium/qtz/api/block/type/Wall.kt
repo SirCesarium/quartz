@@ -30,7 +30,7 @@ class WallPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<WallBlock>,
     val item: DeferredItem<BlockItem>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -78,6 +78,10 @@ class WallScope(private val plan: WallPlan, private val builder: BlockBuilder<Wa
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -93,6 +97,7 @@ class WallScope(private val plan: WallPlan, private val builder: BlockBuilder<Wa
  * | Block class | auto-set to `WallBlock` |
  * | Block properties | `configureBlock { }` | `strength(2.0f)`, `noCollision()` |
  * | Item properties | `configureItem { }` | `stacksTo(16)` |
+ * | Texture override | `texture("path")` | `texture("minecraft:block/stone")` |
  * | Block state + model | `blockState = true/false` | disable to provide custom |
  * | Loot table | `lootTable = true/false` | disable to provide custom |
  * | Render type | `renderType = "cutout"` | for transparent blocks |
@@ -104,13 +109,39 @@ class WallScope(private val plan: WallPlan, private val builder: BlockBuilder<Wa
  * class ModBlocks : BlockRegistry("modid") {
  *     val stoneWall by wall(Blocks.STONE)
  *
- *     val glassWall by wall(Blocks.GLASS) {
+ *     val customWall by wall(Blocks.STONE) {
+ *         texture("minecraft:block/polished_andesite")
  *         renderType = "cutout"
- *         configureBlock { noOcclusion() }
  *     }
  * }
  * ```
  */
+fun BlockRegistry.wall(
+    config: WallScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<WallBlock>()
+    val textureName = name.removeSuffix("_wall")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+        builder.blockCustomizer?.invoke(p)
+        WallBlock(p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = WallPlan(name, blockHolder, itemHolder, texture)
+    WallScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
 fun BlockRegistry.wall(
     baseBlock: Block,
     config: WallScope.() -> Unit = {},
