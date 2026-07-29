@@ -32,7 +32,7 @@ class FencePlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<FenceBlock>,
     val item: DeferredItem<BlockItem>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -79,6 +79,10 @@ class FenceScope(private val plan: FencePlan, private val builder: BlockBuilder<
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -94,6 +98,7 @@ class FenceScope(private val plan: FencePlan, private val builder: BlockBuilder<
  * | Block class | auto-set to `FenceBlock` |
  * | Block properties | `configureBlock { }` | `strength(2.0f)`, `noCollision()` |
  * | Item properties | `configureItem { }` | `stacksTo(16)` |
+ * | Texture override | `texture("path")` | `texture("minecraft:block/stone")` |
  * | Block state + model | `blockState = true/false` | disable to provide custom |
  * | Loot table | `lootTable = true/false` | disable to provide custom |
  * | Render type | `renderType = "cutout"` | for transparent blocks |
@@ -105,13 +110,39 @@ class FenceScope(private val plan: FencePlan, private val builder: BlockBuilder<
  * class ModBlocks : BlockRegistry("modid") {
  *     val stoneFence by fence(Blocks.STONE)
  *
- *     val glassFence by fence(Blocks.GLASS) {
+ *     val customFence by fence(Blocks.STONE) {
+ *         texture("minecraft:block/polished_andesite")
  *         renderType = "cutout"
- *         configureBlock { noOcclusion() }
  *     }
  * }
  * ```
  */
+fun BlockRegistry.fence(
+    config: FenceScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<FenceBlock>()
+    val textureName = name.removeSuffix("_fence")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+        builder.blockCustomizer?.invoke(p)
+        FenceBlock(p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = FencePlan(name, blockHolder, itemHolder, texture)
+    FenceScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
 fun BlockRegistry.fence(
     baseBlock: Block,
     config: FenceScope.() -> Unit = {},
