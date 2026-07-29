@@ -31,7 +31,7 @@ class FenceGatePlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<FenceGateBlock>,
     val item: DeferredItem<BlockItem>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -71,6 +71,10 @@ class FenceGateScope(private val plan: FenceGatePlan, private val builder: Block
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -84,16 +88,48 @@ class FenceGateScope(private val plan: FenceGatePlan, private val builder: Block
  * | Block class | auto-set to [FenceGateBlock] |
  * | Block properties | `configureBlock { }` | `strength(2.0f)` |
  * | Item properties | `configureItem { }` | `stacksTo(64)` |
+ * | Texture override | `texture("path")` | `texture("minecraft:block/oak_planks")` |
  * | Blockstate gen | `blockState = false` | disable |
  * | Loot table gen | `lootTable = false` | disable |
  *
  * ```
  * class ModBlocks : BlockRegistry("modid") {
  *     val oakGate by fenceGate(Blocks.OAK_PLANKS, WoodType.OAK)
- *     val spruceGate by fenceGate(Blocks.SPRUCE_PLANKS, WoodType.SPRUCE)
+ *
+ *     val customGate by fenceGate(Blocks.OAK_PLANKS) {
+ *         texture("minecraft:block/spruce_planks")
+ *     }
  * }
  * ```
  */
+fun BlockRegistry.fenceGate(
+    woodType: WoodType = WoodType.OAK,
+    config: FenceGateScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<FenceGateBlock>()
+    val textureName = name.removeSuffix("_fence_gate")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+            .sound(woodType.soundType())
+        builder.blockCustomizer?.invoke(p)
+        FenceGateBlock(woodType, p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = FenceGatePlan(name, blockHolder, itemHolder, texture)
+    FenceGateScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
 fun BlockRegistry.fenceGate(
     baseBlock: Block,
     woodType: WoodType = WoodType.OAK,
