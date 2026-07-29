@@ -27,8 +27,8 @@ class PillarPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<RotatedPillarBlock>,
     val item: DeferredItem<BlockItem>,
-    private val textureSide: ResourceLocation,
-    private val textureEnd: ResourceLocation,
+    var textureSide: ResourceLocation,
+    var textureEnd: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -62,6 +62,14 @@ class PillarScope(private val plan: PillarPlan, private val builder: BlockBuilde
     fun configureItem(action: Item.Properties.() -> Unit) {
         builder.configureItem(action)
     }
+
+    fun textureSide(path: String) {
+        plan.textureSide = ResourceLocation.parse(path)
+    }
+
+    fun textureEnd(path: String) {
+        plan.textureEnd = ResourceLocation.parse(path)
+    }
 }
 
 /**
@@ -76,28 +84,59 @@ class PillarScope(private val plan: PillarPlan, private val builder: BlockBuilde
  *
  * | Property | Config block | Example |
  * |---|---|---|
- * | Name | `by pillar(base)` → `"my_pillar"` |
+ * | Name | `by pillar` → `"my_pillar"` |
  * | Block class | auto-set to [RotatedPillarBlock] |
  * | Block properties | `configureBlock { }` | `strength(2.0f)` |
  * | Item properties | `configureItem { }` | `stacksTo(64)` |
  * | Blockstate gen | `blockState = false` | disable |
  * | Loot table gen | `lootTable = false` | disable |
+ * | Side texture | `textureSide("path")` | `textureSide("minecraft:block/oak_log")` |
+ * | End texture | `textureEnd("path")` | `textureEnd("minecraft:block/oak_log_top")` |
  *
  * ```
  * class ModBlocks : BlockRegistry("modid") {
- *     val stonePillar by pillar(
- *         Blocks.STONE,
- *         textureSide = ResourceLocation.withDefaultNamespace("block/stone_pillar_side"),
- *         textureEnd  = ResourceLocation.withDefaultNamespace("block/stone_pillar_top"),
- *     )
- *     val oakPillar by pillar(
- *         Blocks.OAK_LOG,
- *         textureSide = ResourceLocation.withDefaultNamespace("block/oak_log"),
- *         textureEnd  = ResourceLocation.withDefaultNamespace("block/oak_log_top"),
- *     )
+ *     val pillarWithoutBase by pillar {
+ *         textureSide("minecraft:block/oak_log")
+ *         textureEnd("minecraft:block/oak_log_top")
+ *     }
+ *
+ *     val pillarWithBase by pillar(Blocks.STONE, "minecraft:block/side", "minecraft:block/end")
  * }
  * ```
  */
+fun BlockRegistry.pillar(
+    config: PillarScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<RotatedPillarBlock>()
+    val textureSide = ResourceLocation.fromNamespaceAndPath(modId, "block/${name}_side")
+    val textureEnd = ResourceLocation.fromNamespaceAndPath(modId, "block/${name}_end")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+        builder.blockCustomizer?.invoke(p)
+        RotatedPillarBlock(p)
+    }
+
+    val itemHolder = items.registerItem(name) {
+        val p = Item.Properties()
+        builder.itemCustomizer?.invoke(p)
+        BlockItem(blockHolder.get(), p)
+    }
+
+    val plan = PillarPlan(name, blockHolder, itemHolder, textureSide, textureEnd)
+    PillarScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
+}
+
+fun BlockRegistry.pillar(
+    baseBlock: Block,
+    textureSide: String,
+    textureEnd: String,
+    config: PillarScope.() -> Unit = {},
+) = pillar(baseBlock, ResourceLocation.parse(textureSide), ResourceLocation.parse(textureEnd), config)
+
 fun BlockRegistry.pillar(
     baseBlock: Block,
     textureSide: ResourceLocation,
