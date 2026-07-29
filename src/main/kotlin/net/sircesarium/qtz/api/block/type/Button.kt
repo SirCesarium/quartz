@@ -22,7 +22,7 @@ class ButtonPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<ButtonBlock>,
     val item: DeferredItem<Item>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -56,6 +56,40 @@ class ButtonScope(private val plan: ButtonPlan, private val builder: BlockBuilde
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
+}
+
+fun BlockRegistry.button(
+    blockSetType: BlockSetType = BlockSetType.STONE,
+    ticks: Int = 20,
+    config: ButtonScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<ButtonBlock>()
+    val textureName = name.removeSuffix("_button")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+            .noCollission()
+            .strength(0.5f)
+            .sound(blockSetType.soundType())
+        builder.blockCustomizer?.invoke(p)
+        ButtonBlock(blockSetType, ticks, p)
+    }
+
+    val itemHolder = items.registerItem(name) { properties ->
+        builder.itemCustomizer?.invoke(properties)
+        createItem(builder, blockHolder, properties)
+    }
+
+    val plan = ButtonPlan(name, blockHolder, itemHolder, texture)
+    ButtonScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
 }
 
 fun BlockRegistry.button(
