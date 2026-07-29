@@ -24,7 +24,7 @@ class TrapdoorPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<TrapDoorBlock>,
     val item: DeferredItem<Item>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -76,6 +76,10 @@ class TrapdoorScope(private val plan: TrapdoorPlan, private val builder: BlockBu
 
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
+    }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
     }
 }
 
