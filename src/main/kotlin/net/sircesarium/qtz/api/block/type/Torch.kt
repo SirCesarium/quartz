@@ -27,7 +27,7 @@ class TorchPlan internal constructor(
     val deferredBlock: DeferredBlock<TorchBlock>,
     val wallDeferredBlock: DeferredBlock<WallTorchBlock>,
     val item: DeferredItem<Item>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     override val knownBlocks: List<Block> get() = listOf(block, wallBlock)
@@ -77,6 +77,10 @@ class TorchScope(private val plan: TorchPlan, private val builder: BlockBuilder<
 
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
+    }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
     }
 }
 
