@@ -25,7 +25,7 @@ class LayerPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<*>,
     val item: DeferredItem<Item>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -72,6 +72,10 @@ class LayerScope(private val plan: LayerPlan, private val builder: BlockBuilder<
 
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
+    }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
     }
 }
 
