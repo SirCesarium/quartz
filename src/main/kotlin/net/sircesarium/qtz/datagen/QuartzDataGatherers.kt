@@ -2,12 +2,17 @@ package net.sircesarium.qtz.datagen
 
 import net.minecraft.data.loot.LootTableProvider
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
+import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.data.event.GatherDataEvent
 import net.sircesarium.qtz.api.block.BlockRegistry
 import net.sircesarium.qtz.api.item.ItemRegistry
 
-object DataGatherers {
-    fun gatherData(event: GatherDataEvent) {
+object QuartzDataGatherers {
+    fun register(modEventBus: IEventBus) {
+        modEventBus.addListener(QuartzDataGatherers::gatherData)
+    }
+
+    internal fun gatherData(event: GatherDataEvent) {
         val output = event.generator.packOutput
         val lookup = event.lookupProvider
         val helper = event.existingFileHelper
