@@ -27,8 +27,8 @@ class DoorPlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<DoorBlock>,
     val item: DeferredItem<Item>,
-    private val textureBottom: ResourceLocation,
-    private val textureTop: ResourceLocation,
+    var textureBottom: ResourceLocation,
+    var textureTop: ResourceLocation,
     private val itemTexture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
@@ -76,6 +76,14 @@ class DoorScope(private val plan: DoorPlan, private val builder: BlockBuilder<Do
 
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
+    }
+
+    fun textureBottom(path: String) {
+        plan.textureBottom = ResourceLocation.parse(path)
+    }
+
+    fun textureTop(path: String) {
+        plan.textureTop = ResourceLocation.parse(path)
     }
 }
 
