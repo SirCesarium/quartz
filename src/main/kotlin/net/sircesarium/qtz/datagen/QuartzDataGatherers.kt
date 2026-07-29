@@ -17,12 +17,12 @@ object QuartzDataGatherers {
         val lookup = event.lookupProvider
         val helper = event.existingFileHelper
 
-        for (reg in BlockRegistry.instances) {
-            val plans = reg.plans
+        for ((modId, registries) in BlockRegistry.instances.groupBy { it.modId }) {
+            val plans = registries.flatMap { it.plans }
 
             event.generator.addProvider(
                 true,
-                QuartzBlockStateProvider(output, reg.modId, helper, plans)
+                QuartzBlockStateProvider(output, modId, helper, plans)
             )
 
             event.generator.addProvider(
@@ -39,24 +39,26 @@ object QuartzDataGatherers {
                 )
             )
 
-            val blockTags = QuartzBlockTagProvider(output, lookup, reg.modId, helper, plans)
+            val blockTags = QuartzBlockTagProvider(output, lookup, modId, helper, plans)
             event.generator.addProvider(true, blockTags)
 
             event.generator.addProvider(
                 true,
-                QuartzItemTagProvider(output, lookup, blockTags.contentsGetter(), reg.modId, helper, plans)
+                QuartzItemTagProvider(output, lookup, blockTags.contentsGetter(), modId, helper, plans)
             )
         }
 
-        for (reg in ItemRegistry.instances) {
+        for ((modId, registries) in ItemRegistry.instances.groupBy { it.modId }) {
+            val plans = registries.flatMap { it.plans }
+
             event.generator.addProvider(
                 true,
-                QuartzItemModelProvider(output, reg.modId, helper, reg.plans)
+                QuartzItemModelProvider(output, modId, helper, plans)
             )
 
             event.generator.addProvider(
                 true,
-                QuartzItemPlanTagProvider(output, lookup, reg.modId, helper, reg.plans)
+                QuartzItemPlanTagProvider(output, lookup, modId, helper, plans)
             )
         }
     }
