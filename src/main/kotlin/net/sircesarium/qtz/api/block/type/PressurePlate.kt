@@ -23,7 +23,7 @@ class PressurePlatePlan internal constructor(
     private val id: String,
     val deferredBlock: DeferredBlock<PressurePlateBlock>,
     val item: DeferredItem<Item>,
-    private val texture: ResourceLocation,
+    var texture: ResourceLocation,
 ) : DatagenPlan {
     override val block: Block get() = deferredBlock.get()
     var blockState: Boolean = true
@@ -60,6 +60,39 @@ class PressurePlateScope(private val plan: PressurePlatePlan, private val builde
     fun customItem(factory: (Block, Item.Properties) -> Item) {
         builder.customItem(factory)
     }
+
+    fun texture(path: String) {
+        plan.texture = ResourceLocation.parse(path)
+    }
+}
+
+fun BlockRegistry.pressurePlate(
+    blockSetType: BlockSetType = BlockSetType.STONE,
+    config: PressurePlateScope.() -> Unit = {},
+) = bindName { rawName ->
+    val name = rawName.toSnakeCase()
+    val builder = BlockBuilder<PressurePlateBlock>()
+    val textureName = name.removeSuffix("_pressure_plate")
+    val texture = ResourceLocation.fromNamespaceAndPath(modId, "block/${textureName}")
+
+    val blockHolder = blocks.registerBlock(name) {
+        val p = BlockBehaviour.Properties.of()
+            .noCollission()
+            .strength(0.5f)
+            .sound(blockSetType.soundType())
+        builder.blockCustomizer?.invoke(p)
+        PressurePlateBlock(blockSetType, p)
+    }
+
+    val itemHolder = items.registerItem(name) { properties ->
+        builder.itemCustomizer?.invoke(properties)
+        createItem(builder, blockHolder, properties)
+    }
+
+    val plan = PressurePlatePlan(name, blockHolder, itemHolder, texture)
+    PressurePlateScope(plan, builder).apply(config)
+    plans.add(plan)
+    BlockWithItem(blockHolder, itemHolder)
 }
 
 fun BlockRegistry.pressurePlate(
