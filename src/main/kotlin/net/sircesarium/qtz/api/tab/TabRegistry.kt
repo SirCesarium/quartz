@@ -1,8 +1,11 @@
 package net.sircesarium.qtz.api.tab
 
 import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
+import net.minecraft.world.item.CreativeModeTab
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModList
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 import net.neoforged.neoforge.registries.DeferredRegister
 import net.sircesarium.qtz.api.IRegistry
 import kotlin.properties.PropertyDelegateProvider
@@ -11,6 +14,7 @@ import kotlin.properties.ReadOnlyProperty
 open class TabRegistry(val modId: String) : IRegistry {
     @PublishedApi internal val tabs = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId)
     @PublishedApi internal val tabDefs = mutableListOf<TabDef>()
+    @PublishedApi internal val addToDefs = mutableListOf<AddToDef>()
 
     companion object {
         val instances = mutableListOf<TabRegistry>()
@@ -25,6 +29,55 @@ open class TabRegistry(val modId: String) : IRegistry {
         if (ModList.get().isLoaded("fancytabsections")) {
             FTSAdapter.apply(modId, tabDefs)
         }
+        if (addToDefs.isNotEmpty()) {
+            bus.addListener(::onBuildContents)
+        }
+    }
+
+    private fun onBuildContents(event: BuildCreativeModeTabContentsEvent) {
+        val lookup = event.parameters.holders().lookupOrThrow(Registries.ITEM)
+
+        for (def in addToDefs) {
+            if (event.tabKey != def.tab) continue
+
+            for (item in def.items) {
+                when (item) {
+                    is TabItem.Entry -> event.accept(item.item)
+                    is TabItem.Tag -> lookup.get(item.tag).ifPresent { holders ->
+                        for (holder in holders) event.accept(holder.value())
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds items to an existing creative mode tab.
+     *
+     * | Property | Config block | Example |
+     * |---|---|---|
+     * | Target tab | `tab` | `CreativeModeTabs.BUILDING_BLOCKS` |
+     * | Items | `+item`, `+tag`, `+block` | `+ModItems.someItem`, `+itemTag`, `+ModBlocks.someBlock` |
+     *
+     * ```
+     * class ModTabs : TabRegistry("modid") {
+     *     val someBlockInBuilding by addTo(CreativeModeTabs.BUILDING_BLOCKS) {
+     *         +ModBlocks.someBlock
+     *         +itemTag
+     *     }
+     * }
+     * ```
+     */
+    fun addTo(
+        tab: ResourceKey<CreativeModeTab>,
+        content: SectionScope.() -> Unit = {},
+    ) = bindName { _ ->
+        val scope = SectionScope()
+        scope.content()
+
+        val def = AddToDef(tab, scope.items.toList())
+        addToDefs.add(def)
+        def
     }
 
     fun <T> bindName(factory: (String) -> T) = PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, T>> { _, property ->

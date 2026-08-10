@@ -34,6 +34,11 @@ sealed interface TabItem {
     data class Tag(val tag: TagKey<Item>) : TabItem
 }
 
+data class AddToDef(
+    val tab: ResourceKey<CreativeModeTab>,
+    val items: List<TabItem>,
+)
+
 open class TabScope internal constructor(
     private val modId: String,
     internal val name: String,

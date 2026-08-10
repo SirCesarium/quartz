@@ -105,6 +105,15 @@ The tab name comes from the property (snake_case). `title` defaults to `itemGrou
 
 Inside the tab you can add items with `+` (accepts an `ItemLike`, `TagKey<Item>` or a `BlockWithItem`). `section()` adds a Fancy Tab Sections banner; without FTS installed the tab degrades gracefully to a vanilla tab. Section name comes from the property (snake_case).
 
+Add items to an existing vanilla tab with `addTo` (instead of a `BuildCreativeModeTabContentsEvent` listener):
+
+```kotlin
+val someBlockInBuilding by addTo(CreativeModeTabs.BUILDING_BLOCKS) {
+    +ModBlocks.someBlock
+    +itemTag
+}
+```
+
 ## Color helpers
 
 ```kotlin
