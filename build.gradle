@@ -57,6 +57,10 @@ neoForge {
     }
 }
 
+repositories {
+    maven { url = "https://api.modrinth.com/maven" }
+}
+
 configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
@@ -65,6 +69,7 @@ dependencies {
     jarJar(implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.10"))
     additionalRuntimeClasspath "org.jetbrains.kotlin:kotlin-stdlib:2.4.10"
 
+    compileOnly "maven.modrinth:fancytabsections:6.0-NEOFORGE-1.21.1"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

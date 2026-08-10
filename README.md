@@ -36,6 +36,7 @@ class MyMod(modEventBus: IEventBus) {
     init {
         ModBlocks.register(modEventBus)
         ModItems.register(modEventBus)
+        ModTabs.register(modEventBus)
         QuartzDataGatherers.register(modEventBus)
     }
 }
@@ -78,6 +79,40 @@ When omitted, the texture auto-resolves from the property name by stripping the 
 | **Hoe** | `hoe(tier) {}` | `tier`, `attackDamage`, `attackSpeed`, `configureProperties {}`, `texture()` | handheld model, hoe/hoe_enchantable/mining tags |
 
 Textures default to `modid:item/<snake_case_name>`. Override with `texture("modid:path")`.
+
+## Creative Tabs
+
+```kotlin
+class ModTabs : TabRegistry("modid") {
+    val myTab by tab(before = CreativeModeTabs.COMBAT) {
+        title = Component.translatable("itemGroup.modid.my_tab")
+        icon = ModItems.myItem
+
+        +ModItems.myItem
+        +ModBlocks.myBlock
+
+        val mySection by section("My Section", rgb(26, 26, 46), rgb(187, 170, 102)) {
+            +ModItems.myItem
+            +itemTag
+        }
+    }
+}
+```
+
+Register it in your `@Mod` class like any other registry.
+
+The tab name comes from the property (snake_case). `title` defaults to `itemGroup.<modid>.<tab_name>`, `icon` defaults to the first item. Use `before`/`after` to position the tab.
+
+Inside the tab you can add items with `+` (accepts an `ItemLike`, `TagKey<Item>` or a `BlockWithItem`). `section()` adds a Fancy Tab Sections banner; without FTS installed the tab degrades gracefully to a vanilla tab. Section name comes from the property (snake_case).
+
+## Color helpers
+
+```kotlin
+rgb(26, 26, 46)              // opaque RGB → ARGB int
+hsl(210f, 0.5f, 0.3f)        // HSL → ARGB int
+hex("1a1a2e")                // hex, optional #
+hex("#BBAA66")
+```
 
 ## Datagen
 
