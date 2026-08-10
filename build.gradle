@@ -99,6 +99,7 @@ publishMods {
     }.standardOutput.asText
     type = mod_version.contains('alpha') ? ALPHA : mod_version.contains('beta') ? BETA : STABLE
     modLoaders.add('neoforge')
+    dryRun = providers.environmentVariable('MODRINTH_DRY_RUN').map { it == 'true' }.orElse(false)
 
     modrinth {
         accessToken = providers.environmentVariable('MODRINTH_API_KEY')

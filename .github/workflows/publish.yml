@@ -24,8 +24,21 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Check if version already exists on Modrinth
+        id: check
+        run: |
+          MC=$(sed -n 's/^minecraft_version=//p' gradle.properties)
+          MOD=$(sed -n 's/^mod_version=//p' gradle.properties)
+          VERSION="${MC}-${MOD}"
+          echo "Checking version: $VERSION"
+          EXISTS=$(curl -s "https://api.modrinth.com/v2/project/${{ secrets.MODRINTH_PROJECT_ID }}/version" \
+            | python3 -c "import json,sys; vs=json.load(sys.stdin); print(any(v['version_number'] == '${VERSION}' for v in vs))")
+          echo "exists=$EXISTS"
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+
       - name: Build and publish
         run: ./gradlew build publishMods
         env:
           MODRINTH_API_KEY: ${{ secrets.MODRINTH_API_KEY }}
           MODRINTH_PROJECT_ID: ${{ secrets.MODRINTH_PROJECT_ID }}
+          MODRINTH_DRY_RUN: ${{ steps.check.outputs.exists }}
