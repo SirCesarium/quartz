@@ -39,6 +39,14 @@ data class AddToDef(
     val items: List<TabItem>,
 )
 
+/**
+ * Describes one `removeFrom` block: the target tab and the items to remove from it.
+ */
+data class RemoveDef(
+    val tab: ResourceKey<CreativeModeTab>,
+    val items: List<TabItem>,
+)
+
 open class TabScope internal constructor(
     private val modId: String,
     internal val name: String,
@@ -93,6 +101,26 @@ class SectionScope {
     }
 
     operator fun BlockWithItem<*, *>.unaryPlus() {
+        items += TabItem.Entry(this.itemHolder)
+    }
+}
+
+/**
+ * Scope used inside a `removeFrom` block. Start a line with `-` followed by an item, tag or block
+ * to remove it from the target tab.
+ */
+class RemoveScope {
+    internal val items = mutableListOf<TabItem>()
+
+    operator fun ItemLike.unaryMinus() {
+        items += TabItem.Entry(this)
+    }
+
+    operator fun TagKey<Item>.unaryMinus() {
+        items += TabItem.Tag(this)
+    }
+
+    operator fun BlockWithItem<*, *>.unaryMinus() {
         items += TabItem.Entry(this.itemHolder)
     }
 }

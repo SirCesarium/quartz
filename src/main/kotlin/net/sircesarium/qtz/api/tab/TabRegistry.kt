@@ -15,6 +15,7 @@ open class TabRegistry(val modId: String) : IRegistry {
     @PublishedApi internal val tabs = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, modId)
     @PublishedApi internal val tabDefs = mutableListOf<TabDef>()
     @PublishedApi internal val addToDefs = mutableListOf<AddToDef>()
+    @PublishedApi internal val removeToDefs = mutableListOf<RemoveDef>()
 
     companion object {
         val instances = mutableListOf<TabRegistry>()
@@ -29,7 +30,7 @@ open class TabRegistry(val modId: String) : IRegistry {
         if (ModList.get().isLoaded("fancytabsections")) {
             FTSAdapter.apply(modId, tabDefs)
         }
-        if (addToDefs.isNotEmpty()) {
+        if (addToDefs.isNotEmpty() || removeToDefs.isNotEmpty()) {
             bus.addListener(::onBuildContents)
         }
     }
@@ -46,6 +47,26 @@ open class TabRegistry(val modId: String) : IRegistry {
                     is TabItem.Tag -> lookup.get(item.tag).ifPresent { holders ->
                         for (holder in holders) event.accept(holder.value())
                     }
+                }
+            }
+        }
+
+        for (def in removeToDefs) {
+            if (event.tabKey != def.tab) continue
+
+            for (item in def.items) {
+                val entries = buildList {
+                    addAll(event.parentEntries)
+                    addAll(event.searchEntries)
+                }
+
+                val toRemove = when (item) {
+                    is TabItem.Entry -> entries.filter { it.`is`(item.item.asItem()) }
+                    is TabItem.Tag -> entries.filter { it.`is`(item.tag) }
+                }
+
+                for (stack in toRemove) {
+                    event.remove(stack, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS)
                 }
             }
         }
@@ -77,6 +98,35 @@ open class TabRegistry(val modId: String) : IRegistry {
 
         val def = AddToDef(tab, scope.items.toList())
         addToDefs.add(def)
+        def
+    }
+
+    /**
+     * Removes items from an existing creative mode tab.
+     *
+     * | Property | Config block | Example |
+     * |---|---|---|
+     * | Target tab | `tab` | `CreativeModeTabs.BUILDING_BLOCKS` |
+     * | Items | `-item`, `-tag`, `-block` | `-ModItems.someItem`, `-itemTag`, `-ModBlocks.someBlock` |
+     *
+     * ```
+     * class ModTabs : TabRegistry("modid") {
+     *     val noRedstoneInBuilding by removeFrom(CreativeModeTabs.BUILDING_BLOCKS) {
+     *         -ModItems.redstone
+     *         -someItemTag
+     *     }
+     * }
+     * ```
+     */
+    fun removeFrom(
+        tab: ResourceKey<CreativeModeTab>,
+        content: RemoveScope.() -> Unit = {},
+    ) = bindName { _ ->
+        val scope = RemoveScope()
+        scope.content()
+
+        val def = RemoveDef(tab, scope.items.toList())
+        removeToDefs.add(def)
         def
     }
 
