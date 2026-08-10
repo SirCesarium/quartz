@@ -6,6 +6,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.142'
     id 'idea'
     id 'org.jetbrains.kotlin.jvm' version '2.4.10'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -90,6 +91,21 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 }
 
 sourceSets.main.resources.srcDir generateModMetadata
+
+publishMods {
+    file = jar.archiveFile
+    changelog = providers.exec {
+        commandLine('git', 'log', '--oneline', '-15')
+    }.standardOutput.asText
+    type = mod_version.contains('alpha') ? ALPHA : mod_version.contains('beta') ? BETA : STABLE
+    modLoaders.add('neoforge')
+
+    modrinth {
+        accessToken = providers.environmentVariable('MODRINTH_API_KEY')
+        projectId = providers.environmentVariable('MODRINTH_PROJECT_ID')
+        minecraftVersions.add(minecraft_version)
+    }
+}
 sourceSets.main.resources.srcDir "src/generated/resources"
 neoForge.ideSyncTask generateModMetadata
 
