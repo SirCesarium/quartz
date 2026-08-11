@@ -6,26 +6,33 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 
 internal object FTSAdapter {
-    fun apply(modId: String, defs: List<TabDef>) {
+    fun apply(modId: String, defs: List<TabDef>, externalDefs: List<ExternalTabSectionsDef>) {
         for (def in defs) {
             val tabLoc = ResourceLocation.fromNamespaceAndPath(modId, def.name)
-            for (section in def.sections) {
-                val sectionLoc = ResourceLocation.fromNamespaceAndPath(modId, section.name)
-                val sectionColored = SectionColored(sectionLoc)
-                    .setTitle(Component.literal(section.display))
-                    .setBannerColor(section.banner)
-                    .setTextColor(section.text)
-                    .setTextShadow(true)
+            applySections(tabLoc, modId, def.sections)
+        }
+        for (def in externalDefs) {
+            applySections(def.tab.location(), modId, def.sections)
+        }
+    }
 
-                for (item in section.items) {
-                    when (item) {
-                        is TabItem.Entry -> sectionColored.add(item.item)
-                        is TabItem.Tag -> sectionColored.addItemTag(item.tag)
-                    }
+    private fun applySections(tabLoc: ResourceLocation, modId: String, sections: List<SectionDef>) {
+        for (section in sections) {
+            val sectionLoc = ResourceLocation.fromNamespaceAndPath(modId, section.name)
+            val sectionColored = SectionColored(sectionLoc)
+                .setTitle(Component.literal(section.display))
+                .setBannerColor(section.banner)
+                .setTextColor(section.text)
+                .setTextShadow(true)
+
+            for (item in section.items) {
+                when (item) {
+                    is TabItem.Entry -> sectionColored.add(item.item)
+                    is TabItem.Tag -> sectionColored.addItemTag(item.tag)
                 }
-
-                FancyTabSections.addSection(tabLoc, sectionColored)
             }
+
+            FancyTabSections.addSection(tabLoc, sectionColored)
         }
     }
 }

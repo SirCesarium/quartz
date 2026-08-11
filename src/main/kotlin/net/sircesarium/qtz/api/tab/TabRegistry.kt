@@ -16,6 +16,7 @@ open class TabRegistry(val modId: String) : IRegistry {
     @PublishedApi internal val tabDefs = mutableListOf<TabDef>()
     @PublishedApi internal val addToDefs = mutableListOf<AddToDef>()
     @PublishedApi internal val removeToDefs = mutableListOf<RemoveDef>()
+    @PublishedApi internal val externalSectionsDefs = mutableListOf<ExternalTabSectionsDef>()
 
     companion object {
         val instances = mutableListOf<TabRegistry>()
@@ -28,7 +29,7 @@ open class TabRegistry(val modId: String) : IRegistry {
     override fun register(bus: IEventBus) {
         tabs.register(bus)
         if (ModList.get().isLoaded("fancytabsections")) {
-            FTSAdapter.apply(modId, tabDefs)
+            FTSAdapter.apply(modId, tabDefs, externalSectionsDefs)
         }
         if (addToDefs.isNotEmpty() || removeToDefs.isNotEmpty()) {
             bus.addListener(::onBuildContents)
@@ -127,6 +128,40 @@ open class TabRegistry(val modId: String) : IRegistry {
 
         val def = RemoveDef(tab, scope.items.toList())
         removeToDefs.add(def)
+        def
+    }
+
+    /**
+     * Applies FTS sections to an existing creative tab, replacing its contents with only the items
+     * declared inside the sections. Works on tabs registered by other mods (e.g. another mod's tab).
+     *
+     * Requires the [FancyTabSections][net.mcexpanded.fancytabsections.FancyTabSections] library,
+     * which is optional at runtime. If it is not loaded, the declared sections are ignored.
+     *
+     * | Property | Config block | Example |
+     * |---|---|---|
+     * | Target tab | `tab` | `ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath("powergrid", "main"))` |
+     * | Sections | `section("Name", banner, text) {}` | `val wires by section("Wires", rgb(...), rgb(...)) { +someItem }` |
+     *
+     * ```
+     * class ModTabs : TabRegistry("modid") {
+     *     val powerGridSections by sectionsOn(powerGridTab) {
+     *         val wires by section("Wires", rgb(139, 69, 19), rgb(215, 215, 0)) {
+     *             +ModItems.someWire
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    fun sectionsOn(
+        tab: ResourceKey<CreativeModeTab>,
+        content: ExternalTabSectionsScope.() -> Unit = {},
+    ) = bindName { _ ->
+        val scope = ExternalTabSectionsScope()
+        scope.content()
+
+        val def = ExternalTabSectionsDef(tab, scope.sections.toList())
+        externalSectionsDefs.add(def)
         def
     }
 

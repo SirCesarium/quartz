@@ -34,6 +34,14 @@ sealed interface TabItem {
     data class Tag(val tag: TagKey<Item>) : TabItem
 }
 
+/**
+ * Describes FTS sections to be applied to an existing creative tab registered by another mod.
+ */
+data class ExternalTabSectionsDef(
+    val tab: ResourceKey<CreativeModeTab>,
+    val sections: List<SectionDef>,
+)
+
 data class AddToDef(
     val tab: ResourceKey<CreativeModeTab>,
     val items: List<TabItem>,
@@ -122,5 +130,28 @@ class RemoveScope {
 
     operator fun BlockWithItem<*, *>.unaryMinus() {
         items += TabItem.Entry(this.itemHolder)
+    }
+}
+
+/**
+ * Scope used inside a `sectionsOn` block. Declare FTS sections to be applied to an existing
+ * creative tab, using the same `section` DSL as a regular tab.
+ */
+class ExternalTabSectionsScope {
+    internal val sections = mutableListOf<SectionDef>()
+
+    fun section(
+        display: String,
+        banner: Int,
+        text: Int,
+        block: SectionScope.() -> Unit = {},
+    ): PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, SectionDef>> = PropertyDelegateProvider { _, property ->
+        val name = property.name.toSnakeCase()
+        val scope = SectionScope()
+        scope.block()
+
+        val def = SectionDef(name, display, banner, text, scope.items.toList())
+        sections += def
+        ReadOnlyProperty { _, _ -> def }
     }
 }
