@@ -6,6 +6,7 @@ import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.data.event.GatherDataEvent
 import net.sircesarium.qtz.api.block.BlockRegistry
 import net.sircesarium.qtz.api.item.ItemRegistry
+import net.sircesarium.qtz.api.sound.SoundRegistry
 
 object QuartzDataGatherers {
     fun register(modEventBus: IEventBus) {
@@ -59,6 +60,15 @@ object QuartzDataGatherers {
             event.generator.addProvider(
                 true,
                 QuartzItemPlanTagProvider(output, lookup, modId, helper, plans)
+            )
+        }
+
+        for ((modId, registries) in SoundRegistry.instances.groupBy { it.modId }) {
+            val defs = registries.flatMap { it.soundDefs }
+
+            event.generator.addProvider(
+                true,
+                QuartzSoundDefinitionsProvider(output, modId, helper, defs)
             )
         }
     }
