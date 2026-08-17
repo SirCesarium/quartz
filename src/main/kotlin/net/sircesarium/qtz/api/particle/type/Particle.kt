@@ -25,8 +25,9 @@ import net.sircesarium.qtz.utils.toSnakeCase
  * The property resolves to a [DeferredHolder]; call `get()` for the
  * [SimpleParticleType].
  *
- * The particle provider is registered separately on the client, using the
- * holder, on the `RegisterParticleProvidersEvent`.
+ * The particle provider is registered on the client with
+ * [ClientParticleRegistrar][net.sircesarium.qtz.client.particle.ClientParticleRegistrar],
+ * using the holder.
  */
 fun ParticleRegistry.particle() = bindName { rawName ->
     val holder = particles.register(rawName.toSnakeCase(), Supplier { SimpleParticleType(false) })
@@ -44,9 +45,10 @@ fun ParticleRegistry.particle() = bindName { rawName ->
  * | Particle type constructor | `factory` | `::ShockWaveParticleType` |
  *
  * ```
- * class ShockWaveParticleType : ParticleType<ShockWaveParticleOptions>(
- *     false, ShockWaveParticleOptions.CODEC, ShockWaveParticleOptions.STREAM_CODEC,
- * )
+ * class ShockWaveParticleType : ParticleType<ShockWaveParticleOptions>(false) {
+ *     override fun codec() = ShockWaveParticleOptions.CODEC
+ *     override fun streamCodec() = ShockWaveParticleOptions.STREAM_CODEC
+ * }
  *
  * class ModParticles : ParticleRegistry("modid") {
  *     val shockWave by particle(::ShockWaveParticleType)
@@ -56,8 +58,9 @@ fun ParticleRegistry.particle() = bindName { rawName ->
  * The property resolves to a [DeferredHolder]; call `get()` for the
  * [ParticleType].
  *
- * The particle provider is registered separately on the client, using the
- * holder, on the `RegisterParticleProvidersEvent`.
+ * The particle provider is registered on the client with
+ * [ClientParticleRegistrar][net.sircesarium.qtz.client.particle.ClientParticleRegistrar],
+ * using the holder.
  */
 fun <T : ParticleOptions> ParticleRegistry.particle(
     factory: () -> ParticleType<T>,
